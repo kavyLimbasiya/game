@@ -441,7 +441,7 @@
     <main class="wrap">
         <div class="section-row">
             <h2 id="headline">All games</h2>
-            <span id="counter">4 games</span>
+            <span id="counter">5 games</span>
         </div>
 
         <div class="grid" id="grid"></div>
@@ -451,7 +451,7 @@
 
     <script>
         /* ============================================================
-           4 FOLDER GAMES WITH CUSTOM TAGS
+           5 FOLDER GAMES WITH CUSTOM TAGS
            ============================================================ */
         const GAMES = [
             {
@@ -471,6 +471,15 @@
                 thumb: 'Game Thumbnail/bonk.png',
                 blurb: 'Action battles in a single arena. Bring a friend.',
                 tags: ['Action', '3D', 'Arcade', '1 Player game']
+            },
+            {
+                title: 'Dust Yard',
+                sub: '3D tactical shooter',
+                cat: 'shooter 3d tactical action fps',
+                href: './Dust Yard/index.html',
+                thumb: 'Game Thumbnail/Dust Yard.png',
+                blurb: 'Tactical 3 vs 3 bomb defusal. Earn cash, buy weapons each round, and outplay the bots.',
+                tags: ['Shooter', '3D', 'Tactical', '1 Player game']
             },
             {
                 title: '10 Player Ludo 3D',
@@ -507,7 +516,7 @@
                 <span class="badge">READY</span>
             </div>
             <div class="t-media">
-                <img src="${g.thumb}" alt="${g.title}" loading="lazy" onerror="this.onerror=null;this.src='Assets/'+this.alt.toLowerCase().split(' ')[0]+'.png';">
+                <img src="${encodeURI(g.thumb)}" alt="${g.title}" loading="lazy" onerror="this.onerror=null;this.src='Assets/'+this.alt.toLowerCase().split(' ')[0]+'.png';">
             </div>
             <p class="t-blurb">${g.blurb}</p>
             <div class="t-foot">
