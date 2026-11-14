@@ -31,14 +31,26 @@ label{display:flex;flex-direction:column;gap:5px;color:var(--mu)}label b{color:v
 #toast.s{animation:t 1.8s ease-out}@keyframes t{0%{opacity:0;transform:translate(-50%,20px) scale(.6)}15%{opacity:1;transform:translate(-50%,0) scale(1.15)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-20px) scale(1)}}
 #roll{display:none;position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));font-size:18px;padding:13px 38px;border:0;border-radius:30px;background:var(--ac);color:#fff;font-weight:700}
 #roll:disabled{opacity:.3}
+.b:disabled{opacity:.4;cursor:default}
+.in{padding:11px 12px;border-radius:10px;border:2px solid #2d3566;background:#0c1024;color:var(--tx);font:inherit;width:100%;box-sizing:border-box}
+.srv,.pl{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.06)}
+.pl{justify-content:flex-start}
+.srv small,.pl small{color:var(--mu);display:block}
+#plist,#rPlayers{display:flex;flex-direction:column;gap:8px}
+.b.bs{min-width:0;padding:8px 14px}
+.code{font-size:30px;letter-spacing:8px;font-weight:800;text-align:center;color:#ffd740;margin:4px 0}
 .ht{display:flex;gap:8px}
 </style></head><body>
+<a href="../index.html" style="position:fixed;top:14px;left:14px;z-index:99999;background:rgba(20,22,35,0.85);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.25);color:#fff;text-decoration:none;font-family:system-ui,-apple-system,sans-serif;font-size:12px;font-weight:700;padding:7px 13px;border-radius:20px;display:flex;align-items:center;gap:6px;box-shadow:0 4px 14px rgba(0,0,0,0.4);transition:all 0.2s;" onmouseover="this.style.background='#5d5fef'" onmouseout="this.style.background='rgba(20,22,35,0.85)'">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+    Game Hub
+</a>
 <div id="app"></div>
 <div id="hud"><div id="top"><div id="who"></div><div class="ht"><button class="ib" id="bVw" title="Switch 2D / 3D">2D</button><button class="ib" id="bPause">❚❚</button></div></div><div id="strip"></div></div>
 <div id="msg"></div><div id="toast"></div><button id="roll" disabled>Roll</button>
 
 <div class="scr on" id="sMenu"><h1>LUDO</h1><div class="sub">3D island · 2 to 10 players</div>
-<button class="b p" id="bPlay">Play</button><button class="b" id="bRules">Rules</button><button class="b mus">♪ Music: On</button></div>
+<button class="b p" id="bPlay">Play</button><button class="b" id="bMulti">Multiplayer</button><button class="b" id="bRules">Rules</button><button class="b mus">♪ Music: On</button></div>
 
 <div class="scr" id="sLobby"><div class="card"><h2>Lobby</h2>
 <div class="row"><button class="seg on" data-m="solo">Single</button><button class="seg" data-m="team">Team A vs B</button></div>
@@ -62,6 +74,37 @@ label{display:flex;flex-direction:column;gap:5px;color:var(--mu)}label b{color:v
 <li><b>Team:</b> players alternate Team A / Team B. Teammates never capture each other. The team wins when all its pieces are home.</li></ol>
 <button class="b p" id="bRulesX">Got it</button></div></div>
 
+<div class="scr" id="sMulti"><div class="card"><h2>Multiplayer</h2>
+<label>Your name<input class="in" id="pname" maxlength="16" placeholder="Player"></label>
+<button class="b p" id="bPubList">Public server</button><button class="b" id="bPrivSrv">Private server</button>
+<label style="margin-top:6px">Server address<input class="in" id="wsurl" placeholder="ws://localhost:8080/ws" style="font-size:13px"></label>
+<div id="wsNote" style="font-size:12px;color:var(--mu);line-height:1.35;margin-top:-2px">💡 For online play, run <code style="color:#ffd740">node server.js</code> or enter your WebSocket server URL.</div>
+<button class="b" id="bMultiBack">Back</button></div></div>
+
+<div class="scr" id="sPub"><div class="card"><h2>Public servers</h2>
+<div id="plist"></div>
+<button class="b p" id="bNewPub">New public server</button><button class="b" id="bRefresh">Refresh</button><button class="b" id="bPubBack">Back</button></div></div>
+
+<div class="scr" id="sPriv"><div class="card"><h2>Private server</h2>
+<button class="b p" id="bNewPriv">Create private server</button>
+<div class="sub">or join one with its name and code</div>
+<label>Server name<input class="in" id="jname" maxlength="24" placeholder="Server name"></label>
+<label>Code<input class="in" id="jcode" maxlength="6" placeholder="6-character code"></label>
+<button class="b p" id="bJoinPriv">Join</button><button class="b" id="bPrivBack">Back</button></div></div>
+
+<div class="scr" id="sCreate"><div class="card"><h2 id="cT">New server</h2>
+<label>Server name<input class="in" id="sname" maxlength="24" placeholder="e.g. Friday Night"></label>
+<label>Max players <b id="snv">4</b><input type="range" id="sn" min="2" max="10" value="4"></label>
+<label>Pieces each<div class="row" id="cPcs"><button class="seg" data-k="1">1</button><button class="seg" data-k="2">2</button><button class="seg" data-k="3">3</button><button class="seg on" data-k="4">4</button></div></label>
+<label>Mode<div class="row" id="cMode"><button class="seg on" data-md="solo">Single</button><button class="seg" data-md="team">Team A vs B</button></div></label>
+<button class="b p" id="bCreate">Create</button><button class="b" id="bCreateBack">Back</button></div></div>
+
+<div class="scr" id="sRoom"><div class="card"><h2 id="rT">Server</h2><div class="sub" id="rBadge"></div>
+<div id="rCode"></div>
+<div id="rPlayers"></div>
+<div class="sub" id="rMsg"></div>
+<button class="b p" id="bReady">I'm ready</button><button class="b" id="bLeave">Leave server</button></div></div>
+
 <div class="scr" id="sOver"><div class="card"><h2 id="oT">Winner</h2><button class="b p" id="bAgain">Play again</button><button class="b" id="bMenu">Main menu</button></div></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -80,6 +123,8 @@ let ui={mode:'solo',n:4,hum:2,tok:4,view:'3d'},cfg=ui,PL=[],tokens=[],cells=[],d
 let G=null,cur=0,phase='menu',val=0,over=false,gid=0,paused=false,inGame=false,shake=0,prevScr='sMenu';
 let flatT=0,fm=0;const islMats=[],SKY=new THREE.Color(0x9fd8ff),BG2=new THREE.Color(0x1d2540);
 const lerpA=(a,b,t)=>{const d=((b-a)%(2*Math.PI)+3*Math.PI)%(2*Math.PI)-Math.PI;return a+d*t;};
+let ws=null,myId=null,room=null,mp=null,roomsList=[],mpChain=Promise.resolve();
+const myTurn=()=>!mp||!!(PL[cur]&&PL[cur].netId===myId);
 const polar=(r,a,y=0)=>new THREE.Vector3(r*Math.cos(a),y,r*Math.sin(a));
 const pp=(r,a)=>[r*Math.cos(a),r*Math.sin(a)];
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
@@ -142,7 +187,7 @@ function build(c){
  cfg=c;setShape(c.n);gid++;tw=[];sleeps=[];hl=[];fx.forEach(m=>scene.remove(m));fx=[];dieAnim=null;
  if(G)scene.remove(G);G=new THREE.Group();scene.add(G);
  PL=[];tokens=[];cells=[];discs=[];over=false;cur=0;
- for(let i=0;i<c.n;i++){const seat=Math.floor(i*K/c.n);PL.push({i,seat,col:COLS[seat],name:NAMES[seat],cpu:i>=c.hum,team:c.mode==='team'?i%2:i});}
+ for(let i=0;i<c.n;i++){const seat=Math.floor(i*K/c.n);PL.push({i,seat,col:COLS[seat],name:NAMES[seat],cpu:i>=c.hum,team:c.mode==='team'?i%2:i,netId:c.ids?c.ids[i]:null,pname:c.names?c.names[i]:''});}
  mk(new THREE.CylinderGeometry(RV+.3,RV+.3,.6,K),0x4a3326,new THREE.Vector3(0,-.35,0));G.children[G.children.length-1].rotation.y=Math.PI/2-H;
  const CV=A0/Math.cos(H);
  for(let s=0;s<K;s++){const pl=PL.find(p=>p.seat===s),col=pl?pl.col:0x3a4066;
@@ -180,12 +225,23 @@ const hex=c=>'#'+c.toString(16).padStart(6,'0');
 function startGame(){build({...ui});inGame=true;paused=false;flatT=ui.view==='2d'?1:0;syncView();scr(null);$('hud').style.display='block';$('roll').style.display='block';startTurn();}
 async function startTurn(){const g=gid;phase='roll';upd();if(PL[cur].cpu){await sleep(700);if(g===gid)roll();}}
 function nextTurn(extra){if(!extra){let c=0;do{cur=(cur+1)%PL.length;c++}while(done(cur)&&c<20);}startTurn();}
-async function roll(){if(phase!=='roll'||over||paused)return;const g=gid;phase='busy';upd();sfx('roll');
- const v=1+Math.floor(Math.random()*6);await new Promise(res=>{dieAnim={t0:performance.now(),v,res}});if(g!==gid)return;val=v;
+async function roll(rv){if(phase!=='roll'||over||(paused&&rv===undefined))return;const g=gid;phase='busy';upd();sfx('roll');
+ const v=rv!==undefined?rv:1+Math.floor(Math.random()*6);await new Promise(res=>{dieAnim={t0:performance.now(),v,res}});if(g!==gid)return;val=v;
  const pl=PL[cur],mv=movable(cur,v);
  if(!mv.length){say(`${pl.name} rolled ${v} · no move`);await sleep(900);if(g===gid)nextTurn(false);return;}
- phase='move';hl=mv;upd();say(`${pl.name} rolled ${v}${pl.cpu?'':' · tap a glowing piece'}`);
- if(pl.cpu){await sleep(800);if(g===gid)choose(best(mv,v));}else if(mv.length===1){await sleep(500);if(g===gid)choose(mv[0]);}}
+ phase='move';hl=mv;upd();say(`${pl.name} rolled ${v}${pl.cpu||!myTurn()?'':' · tap a glowing piece'}`);
+ if(pl.cpu){await sleep(800);if(g===gid)await choose(best(mv,v));}
+ else if(mv.length===1){
+  if(mp){
+   if(myTurn()){
+    await sleep(400);
+    if(g===gid)requestMove(mv[0]);
+   }
+  } else {
+   await sleep(500);
+   if(g===gid)await choose(mv[0]);
+  }
+ }}
 function best(mv,v){const sc=t=>{const np=t.p===0?1:t.p+v;let s=np;if(np===FIN)s+=100;if(t.p===0)s+=40;if(np>RING)s+=15;
  if(np<=RING){const idx=rIdx(PL[t.pl].seat,np);if(!safe(idx)&&tokens.some(o=>o.p>0&&o.p<=RING&&PL[o.pl].team!==PL[t.pl].team&&ri(o)===idx))s+=80;}return s+Math.random();};
  return mv.reduce((a,b)=>sc(b)>sc(a)?b:a);}
@@ -204,18 +260,18 @@ async function choose(t){if(phase!=='move')return;const g=gid;phase='busy';hl=[]
  let win=null;
  if(cfg.mode==='team'){for(const tm of[0,1]){const ts=tokens.filter(x=>PL[x.pl].team===tm);if(ts.length&&ts.every(x=>x.p===FIN))win=TEAM[tm];}}
  else if(done(t.pl))win=pl.name;
- if(win){over=true;phase='over';upd();sfx('win');for(let i=0;i<6;i++)burst(polar(Math.random()*6,Math.random()*6.28),COLS[i],25);$('oT').textContent=`🏆 ${win} wins!`;await sleep(1200);if(g===gid)scr('sOver');return;}
+ if(win){over=true;phase='over';upd();sfx('win');if(mp&&PL[t.pl].netId===myId)netSend({t:'finished'});for(let i=0;i<6;i++)burst(polar(Math.random()*6,Math.random()*6.28),COLS[i],25);$('oT').textContent=`🏆 ${win} wins!`;await sleep(1200);if(g===gid)scr('sOver');return;}
  nextTurn(v===6);}
 function say(s){$('msg').textContent=s;}
 function upd(){const pl=PL[cur];if(!pl||!inGame)return;
- $('who').innerHTML=`<span class="dot" style="background:${hex(pl.col)}"></span>${pl.name}${cfg.mode==='team'?' · '+TEAM[pl.team]:''}${pl.cpu?' · CPU':''}`;
- if(phase==='roll')say(pl.cpu?'Rolling…':'Your turn · roll the dice');
- $('roll').disabled=!(phase==='roll'&&!pl.cpu&&!over&&!paused);
+ $('who').innerHTML=`<span class="dot" style="background:${hex(pl.col)}"></span>${pl.name}${cfg.mode==='team'?' · '+TEAM[pl.team]:''}${pl.pname?' · '+pl.pname:''}${pl.cpu?' · CPU':''}`;
+ if(phase==='roll')say(pl.cpu?'Rolling…':(myTurn()?'Your turn · roll the dice':(pl.pname||pl.name)+' to roll…'));
+ $('roll').disabled=!(phase==='roll'&&!pl.cpu&&!over&&!paused&&myTurn());
  $('strip').innerHTML=PL.map(p=>`<span class="${p.i===cur?'on':''}"><i class="dot" style="background:${hex(p.col)};width:9px;height:9px"></i>${tokens.filter(t=>t.pl===p.i&&t.p===FIN).length}/${cfg.tok}</span>`).join('');}
 // ---------- screens ----------
 function scr(id){document.querySelectorAll('.scr').forEach(s=>s.classList.toggle('on',s.id===id));}
-function toMenu(){inGame=false;paused=false;flatT=0;$('hud').style.display='none';$('roll').style.display='none';$('msg').textContent='';build({mode:'solo',n:10,hum:0,tok:4});phase='menu';scr('sMenu');}
-function pause(){if(!inGame||paused||over)return;paused=true;upd();scr('sPause');}
+function toMenu(){inGame=false;paused=false;flatT=0;mp=null;ui.ids=null;ui.names=null;$('hud').style.display='none';$('roll').style.display='none';$('msg').textContent='';build({mode:'solo',n:10,hum:0,tok:4});phase='menu';scr('sMenu');}
+function pause(){if(!inGame||paused||over)return;paused=true;upd();$('bRestart').style.display=mp?'none':'';scr('sPause');}
 function resume(){paused=false;scr(null);upd();}
 function rules(from){prevScr=from;scr('sRules');}
 function dieHome(t){return new THREE.Vector3(0,3.2,0).lerp(polar(RV+3.2,H-Math.PI/2,.9),t);}
@@ -226,7 +282,7 @@ document.querySelectorAll('#vw [data-v]').forEach(b=>b.onclick=()=>{ui.view=b.da
 $('bPlay').onclick=()=>{scr('sLobby');dots();};$('bRules').onclick=()=>rules('sMenu');$('bRules2').onclick=()=>rules('sPause');$('bRulesX').onclick=()=>scr(prevScr);
 document.querySelectorAll('.mus').forEach(b=>b.onclick=setMus);
 $('bBack').onclick=()=>scr('sMenu');$('bStart').onclick=startGame;
-$('bPause').onclick=pause;$('bResume').onclick=resume;$('bRestart').onclick=startGame;$('bQuit').onclick=toMenu;$('bAgain').onclick=startGame;$('bMenu').onclick=toMenu;$('roll').onclick=roll;
+$('bPause').onclick=pause;$('bResume').onclick=resume;$('bRestart').onclick=()=>startGame();$('bQuit').onclick=quitToMenu;$('bAgain').onclick=()=>room?backToRoom():startGame();$('bMenu').onclick=quitToMenu;$('roll').onclick=requestRoll;
 addEventListener('keydown',e=>{if(e.key==='Escape')paused?resume():pause();});
 document.querySelectorAll('#sLobby [data-m]').forEach(b=>b.onclick=()=>{ui.mode=b.dataset.m;document.querySelectorAll('#sLobby [data-m]').forEach(x=>x.classList.toggle('on',x===b));});
 document.querySelectorAll('#pcs .seg').forEach(b=>b.onclick=()=>{ui.tok=+b.dataset.k;document.querySelectorAll('#pcs .seg').forEach(x=>x.classList.toggle('on',x===b));});
@@ -243,12 +299,138 @@ cv.addEventListener('pointermove',e=>{const o=ptrs.get(e.pointerId);if(!o)return
 cv.addEventListener('pointerup',e=>{const was=ptrs.size===1&&moved<6;ptrs.delete(e.pointerId);if(was)pick(e);});
 cv.addEventListener('pointercancel',e=>ptrs.delete(e.pointerId));
 cv.addEventListener('wheel',e=>{if(!flatT)dist=clamp(dist*(1+e.deltaY*.001),14,70);e.preventDefault()},{passive:false});
-function pick(e){if(!inGame||over||paused||PL[cur].cpu)return;
+function pick(e){if(!inGame||over||paused||PL[cur].cpu||!myTurn())return;
  ray.setFromCamera(new THREE.Vector2(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1),cam);
- if(phase==='roll'&&ray.intersectObject(die).length){roll();return;}
+ if(phase==='roll'&&ray.intersectObject(die).length){requestRoll();return;}
  if(phase!=='move')return;
  const hit=ray.intersectObjects(hl.map(t=>t.mesh),true)[0];
- if(hit){let o=hit.object;while(o&&!o.userData.t)o=o.parent;if(o&&hl.includes(o.userData.t))choose(o.userData.t);}}
+ if(hit){let o=hit.object;while(o&&!o.userData.t)o=o.parent;if(o&&hl.includes(o.userData.t))requestMove(o.userData.t);}}
+// ---------- multiplayer ----------
+const defaultWsUrl=()=>{
+  if(!location.host||location.hostname.endsWith('github.io'))return 'ws://localhost:8080/ws';
+  return (location.protocol==='https:'?'wss://':'ws://')+location.host+'/ws';
+};
+const getWsUrl=()=>{
+  const custom=($('wsurl')&&$('wsurl').value.trim())||'';
+  if(custom){try{localStorage.setItem('ludo_ws_url',custom);}catch(e){}return custom;}
+  return defaultWsUrl();
+};
+const pName=()=>($('pname').value.trim()||'Player').slice(0,16);
+let pubMode=true,cPcs=4,cMode='solo',leaving=false;
+function netSend(o){if(ws&&ws.readyState===1)ws.send(JSON.stringify(o));}
+function connect(cb){
+  const target=getWsUrl();
+  if(ws&&ws.readyState===1){cb();return;}
+  if(ws&&ws.readyState===0){ws.addEventListener('open',cb,{once:true});return;}
+  if(ws){try{ws.close();}catch(e){}ws=null;}
+  let up=false;toast('Connecting…','#82b1ff');
+  let s;
+  try{s=new WebSocket(target);ws=s;}catch(e){toast('Invalid WebSocket address','#ff8a80');return;}
+  s.onopen=()=>{up=true;cb();};
+  s.onmessage=e=>onNet(JSON.parse(e.data));
+  s.onerror=()=>{if(!up)toast('Cannot reach server: '+target.replace(/^wss?:\/\//,'').slice(0,28),'#ff8a80');};
+  s.onclose=()=>{if(ws===s)ws=null;if(room){toast('Lost connection to the server','#ff8a80');quitToMenu();}};
+}
+function onNet(m){
+  switch(m.t){
+    case 'hello': myId=m.id; break;
+    case 'list': roomsList=m.rooms; if($('sPub').classList.contains('on'))renderList(); break;
+    case 'room': if(leaving)break; myId=m.you; room=m.room; if(!inGame){scr('sRoom');renderRoom();} break;
+    case 'error': toast(m.msg,'#ff8a80'); break;
+    case 'start': startMp(m); break;
+    case 'roll': enqueue(()=>remoteRoll(m.v,m.by)); break;
+    case 'move': enqueue(()=>remoteMove(m.tok,m.by)); break;
+    case 'aborted': if(inGame){toast(m.msg,'#ffd740');backToRoom();} break;
+  }
+}
+// Server events are applied one at a time, in the order the server sent them,
+// so every browser runs the same moves in the same order.
+function enqueue(fn){mpChain=mpChain.then(fn).catch(e=>console.error(e));}
+function remoteRoll(v,by){if(!inGame||over||phase!=='roll'||!PL[cur]||PL[cur].netId!==by)return;return roll(v);}
+function remoteMove(tok,by){const t=tokens[tok];if(!inGame||over||!t||phase!=='move'||!PL[cur]||PL[cur].netId!==by||!hl.includes(t))return;return choose(t);}
+function requestRoll(){if(mp){if(phase==='roll'&&myTurn()&&!over&&!paused)netSend({t:'roll'});}else roll();}
+function requestMove(t){if(mp)netSend({t:'move',tok:tokens.indexOf(t)});else choose(t);}
+function startMp(m){
+  if(!room||leaving)return;
+  mp={ids:m.ids};
+  ui.ids=m.ids;ui.names=m.names;ui.n=m.ids.length;ui.hum=m.ids.length;ui.tok=m.pieces;ui.mode=m.mode;
+  mpChain=Promise.resolve();
+  startGame();
+}
+function backToRoom(){
+  gid++;inGame=false;paused=false;over=false;mp=null;dieAnim=null;hl=[];phase='menu';
+  $('hud').style.display='none';$('roll').style.display='none';$('msg').textContent='';
+  flatT=0;scr('sRoom');renderRoom();
+}
+function quitToMenu(){
+  if(room){netSend({t:'leave'});room=null;}
+  leaving=true;mp=null;toMenu();
+}
+function renderList(){
+  const el=$('plist');el.innerHTML='';
+  if(!roomsList.length){el.innerHTML='<div class="sub">No public servers yet. Create the first one!</div>';return;}
+  roomsList.forEach(r=>{
+    const row=document.createElement('div');row.className='srv';
+    const info=document.createElement('div');
+    const nm=document.createElement('b');nm.textContent=r.name;
+    const sm=document.createElement('small');sm.textContent=`${r.players}/${r.seats} players · ${r.state==='playing'?'In game':'Waiting'}`;
+    info.append(nm,sm);
+    const btn=document.createElement('button');btn.className='b p bs';
+    btn.textContent=r.state==='playing'?'Busy':'Join';
+    btn.disabled=r.state==='playing'||r.players>=r.seats;
+    btn.onclick=()=>{leaving=false;netSend({t:'join',name:r.name,code:'',playerName:pName()});};
+    row.append(info,btn);el.append(row);
+  });
+}
+function renderRoom(){
+  if(!room)return;
+  const me=room.players.find(p=>p.id===myId);
+  $('rT').textContent=room.name;
+  $('rBadge').textContent=(room.isPublic?'Public server':'Private server')+' · '+(room.mode==='team'?'Team A vs B':'Single')+' · '+room.pieces+' pieces · up to '+room.seats+' players';
+  const rc=$('rCode');rc.innerHTML='';
+  if(!room.isPublic){
+    const h=document.createElement('div');h.className='sub';h.style.textAlign='center';h.textContent='Share this server name and code with friends';
+    const c=document.createElement('div');c.className='code';c.textContent=room.code;
+    rc.append(h,c);
+  }
+  const pl=$('rPlayers');pl.innerHTML='';
+  room.players.forEach((p,i)=>{
+    const row=document.createElement('div');row.className='pl';
+    const dot=document.createElement('i');dot.className='dot';dot.style.background=hex(COLS[i%COLS.length]);
+    const nm=document.createElement('span');nm.style.flex='1';
+    nm.textContent=p.name+(p.id===room.hostId?' (host)':'')+(p.id===myId?' (you)':'');
+    const st=document.createElement('small');st.textContent=p.ready?'✓ Ready':'Not ready';
+    st.style.color=p.ready?'#69f0ae':'var(--mu)';
+    row.append(dot,nm,st);pl.append(row);
+  });
+  const n=room.players.length,notReady=room.players.filter(p=>!p.ready).length;
+  let msg;
+  if(room.state==='countdown')msg=`Everyone is ready · starting in ${room.cdN}…`;
+  else if(n<2)msg='Waiting for at least 2 players to join';
+  else if(notReady)msg=`Waiting for ${notReady} player${notReady>1?'s':''} to get ready. The game will not start until everyone is ready.`;
+  else msg='Everyone is ready';
+  $('rMsg').textContent=msg;
+  $('bReady').textContent=me&&me.ready?'Not ready':"I'm ready";
+  $('bReady').className=me&&me.ready?'b':'b p';
+}
+$('bMulti').onclick=()=>{if($('wsurl')&&!$('wsurl').value)$('wsurl').value=localStorage.getItem('ludo_ws_url')||defaultWsUrl();scr('sMulti');};
+$('bMultiBack').onclick=()=>scr('sMenu');
+$('bPubList').onclick=()=>connect(()=>{leaving=false;netSend({t:'list'});scr('sPub');renderList();});
+$('bRefresh').onclick=()=>netSend({t:'list'});
+$('bPubBack').onclick=()=>scr('sMulti');
+$('bNewPub').onclick=()=>{pubMode=true;$('cT').textContent='New public server';scr('sCreate');};
+$('bPrivSrv').onclick=()=>connect(()=>{leaving=false;scr('sPriv');});
+$('bPrivBack').onclick=()=>scr('sMulti');
+$('bNewPriv').onclick=()=>{pubMode=false;$('cT').textContent='New private server';scr('sCreate');};
+$('bJoinPriv').onclick=()=>connect(()=>{leaving=false;netSend({t:'join',name:$('jname').value.trim(),code:$('jcode').value.trim().toUpperCase(),playerName:pName()});});
+$('bCreate').onclick=()=>connect(()=>{leaving=false;netSend({t:'create',name:$('sname').value.trim(),public:pubMode,seats:+$('sn').value,pieces:cPcs,mode:cMode,playerName:pName()});});
+$('bCreateBack').onclick=()=>scr(pubMode?'sPub':'sPriv');
+$('bLeave').onclick=quitToMenu;
+$('bReady').onclick=()=>{if(!room)return;const me=room.players.find(p=>p.id===myId);netSend({t:'ready',ready:!(me&&me.ready)});};
+$('sn').oninput=()=>{$('snv').textContent=$('sn').value;};
+document.querySelectorAll('#cPcs .seg').forEach(b=>b.onclick=()=>{cPcs=+b.dataset.k;document.querySelectorAll('#cPcs .seg').forEach(x=>x.classList.toggle('on',x===b));});
+document.querySelectorAll('#cMode .seg').forEach(b=>b.onclick=()=>{cMode=b.dataset.md;document.querySelectorAll('#cMode .seg').forEach(x=>x.classList.toggle('on',x===b));});
+
 // ---------- loop ----------
 let last=performance.now();
 function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/1000);last=now;
